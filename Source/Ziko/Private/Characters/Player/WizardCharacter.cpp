@@ -7,6 +7,7 @@
 #include "NavigationSystemTypes.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -31,7 +32,7 @@ void AWizardCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = Cast<APlayerController>(GetController());
-	check(Controller);
+	check(PlayerController);
 }
 
 // Called every frame
@@ -40,11 +41,24 @@ void AWizardCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	FHitResult OutHit;
-	if (PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, OutHit))
-	{
-		//UE_LOG(LogTemp, Display, TEXT("Mouse Pos: %f, %f"));
-		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 5.f, 10.f, FColor::Red, true);
-	}
+	if (!PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, OutHit)) return;
+	//DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 5.f, 10.f, FColor::Red, true);
+
+	const FVector Forward = GetActorForwardVector();
+	const FVector CharacterToMousePos = OutHit.ImpactPoint - GetActorLocation();
+	
+	//Get angle between player forward and mouse position
+	const float CosAngle = FVector::DotProduct(Forward, CharacterToMousePos) / (Forward.Size() * CharacterToMousePos.Size());
+	float Angle = FMath::Acos(CosAngle);
+	Angle = FMath::RadiansToDegrees(Angle);
+
+	//Check if mouse position is in right/left of player
+	const float CosDirAngle = FVector::DotProduct(GetActorRightVector(), CharacterToMousePos) / (GetActorForwardVector().Size() * CharacterToMousePos.Size());
+	float LookDir = FMath::Acos(CosDirAngle);
+	LookDir = FMath::RadiansToDegrees(LookDir);
+	LookDir = LookDir < 90.f? Angle : 360.f - Angle; //FIX ME: Weird rotation when mouse transitions from left to right or inverse
+	
+	SetActorRotation(FRotator(0.f, LookDir, 0.f));
 }
 
 // Called to bind functionality to input
@@ -57,5 +71,5 @@ void AWizardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void AWizardCharacter::MoveForward(float AxisValue)
 {
-	//UE_LOG(LogTemp, Display, TEXT("Received X value: %f"), AxisValue);
+	AddMovementInput(GetActorForwardVector(), AxisValue);
 }
