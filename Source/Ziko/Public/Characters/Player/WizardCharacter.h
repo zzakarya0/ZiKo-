@@ -31,17 +31,30 @@ public:
 	
 private:
 	void MoveForward(float AxisValue);
-
-public:	
+	void MoveRight(float AxisValue);
+	void UpdateLookDir();
+	void RegenerateEnergy(const float DeltaTime);
 	
 private:
 	UPROPERTY()
 	APlayerController* PlayerController;
-	
-	// Camera Components	
+
+	/*HitResult used for getting mouse position to UpdateLookDir()*/
+	FHitResult OutHit;
+
+	/*Camera Components*/		
 	UPROPERTY(EditAnywhere, Category = "Camera Components")
 	USpringArmComponent* CameraSpringComp;
 	
 	UPROPERTY(EditAnywhere, Category = "Camera Components")
 	UCameraComponent* CameraComp;
+
+	/*Energy Components consumed by player abilities*/
+	UPROPERTY(EditAnywhere, Category = "Energy Components")
+	float MaxEnergy;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Energy Components")
+	float EnergyRegenerateRate;
+	
+	float EnergyVal;
 };

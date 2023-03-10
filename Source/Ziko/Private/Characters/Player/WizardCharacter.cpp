@@ -24,12 +24,18 @@ AWizardCharacter::AWizardCharacter()
 
 	CameraSpringComp->TargetArmLength = 750.f;
 	CameraSpringComp->SetRelativeRotation(FRotator(-50.f, 0.f, 0.f));
+
+	MaxEnergy = -1.f;
+	EnergyRegenerateRate = -1.f;
+	EnergyVal = -1.f;
 }
 
 // Called when the game starts or when spawned
 void AWizardCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	EnergyVal = MaxEnergy;
 
 	PlayerController = Cast<APlayerController>(GetController());
 	check(PlayerController);
@@ -39,8 +45,22 @@ void AWizardCharacter::BeginPlay()
 void AWizardCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	UpdateLookDir();
+	RegenerateEnergy(DeltaTime); //FIXME: Don't regenerate in Tick, use Timer maybe
+}
 
-	FHitResult OutHit;
+// Called to bind functionality to input
+void AWizardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AWizardCharacter::MoveForward);
+	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AWizardCharacter::MoveRight);
+}
+
+void AWizardCharacter::UpdateLookDir()
+{
 	if (!PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, OutHit)) return;
 	//DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 5.f, 10.f, FColor::Red, true);
 
@@ -56,20 +76,24 @@ void AWizardCharacter::Tick(float DeltaTime)
 	const float CosDirAngle = FVector::DotProduct(GetActorRightVector(), CharacterToMousePos) / (GetActorForwardVector().Size() * CharacterToMousePos.Size());
 	float LookDir = FMath::Acos(CosDirAngle);
 	LookDir = FMath::RadiansToDegrees(LookDir);
-	LookDir = LookDir < 90.f? Angle : 360.f - Angle; //FIX ME: Weird rotation when mouse transitions from left to right or inverse
+	LookDir = LookDir < 90.f? Angle : 360.f - Angle; //FIXME: Weird rotation when mouse transitions from left to right or inverse
 	
 	SetActorRotation(FRotator(0.f, LookDir, 0.f));
+	OutHit.Reset();
 }
 
-// Called to bind functionality to input
-void AWizardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AWizardCharacter::RegenerateEnergy(const float DeltaTime)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AWizardCharacter::MoveForward);
+	EnergyVal = FMath::Clamp(EnergyVal + (EnergyRegenerateRate * DeltaTime), 0.f, MaxEnergy);
+	//UE_LOG(LogTemp)
 }
 
 void AWizardCharacter::MoveForward(float AxisValue)
 {
 	AddMovementInput(GetActorForwardVector(), AxisValue);
+}
+
+void AWizardCharacter::MoveRight(float AxisValue)
+{
+	AddMovementInput(GetActorRightVector(), AxisValue);
 }
