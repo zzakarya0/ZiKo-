@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseCharacter.h"
 #include "GameFramework/Character.h"
 #include "WizardCharacter.generated.h"
 
@@ -10,7 +11,7 @@ class UCameraComponent;
 class USpringArmComponent;
 
 UCLASS()
-class ZIKO_API AWizardCharacter : public ACharacter
+class ZIKO_API AWizardCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -22,50 +23,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	/*Perform character base attack*/
+	virtual void BaseAttack() override;
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
-private:
-	/*Handle character movement*/
-	void MoveForward(float AxisValue);
-	void MoveRight(float AxisValue);
-	
-	/*Update character look direction*/
-	void UpdateLookDir();
-	
-	/*Regenerate player power energy*/
-	void RegenerateEnergy(const float DeltaTime);
-	
-	/*Perform character base attack*/
-	void BaseAttack();
-	
-private:
-	/*Camera Components*/		
-	UPROPERTY(EditAnywhere, Category = "Camera Components")
-	USpringArmComponent* CameraSpringComp;
-	
-	UPROPERTY(EditAnywhere, Category = "Camera Components")
-	UCameraComponent* CameraComp;
-
-	/*Abilities Component*/
-	UPROPERTY(EditAnywhere, Category = "Ability Component")
-	float BaseAttackCost;
-	
-	UPROPERTY(EditAnywhere, Category = "Ability Component")
-	float MaxEnergy;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Ability Component")
-	float EnergyRegenerateRate;
-	
-	float EnergyVal;
-
-	/*HitResult used for getting mouse position to UpdateLookDir()*/
-	FHitResult OutHit;
-
-	UPROPERTY()
-	APlayerController* PlayerController;
 };
