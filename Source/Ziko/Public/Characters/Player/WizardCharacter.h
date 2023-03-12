@@ -30,18 +30,42 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 private:
+	/*Handle character movement*/
 	void MoveForward(float AxisValue);
-
-public:	
+	void MoveRight(float AxisValue);
+	
+	/*Update character look direction*/
+	void UpdateLookDir();
+	
+	/*Regenerate player power energy*/
+	void RegenerateEnergy(const float DeltaTime);
+	
+	/*Perform character base attack*/
+	void BaseAttack();
 	
 private:
-	UPROPERTY()
-	APlayerController* PlayerController;
-	
-	// Camera Components	
+	/*Camera Components*/		
 	UPROPERTY(EditAnywhere, Category = "Camera Components")
 	USpringArmComponent* CameraSpringComp;
 	
 	UPROPERTY(EditAnywhere, Category = "Camera Components")
 	UCameraComponent* CameraComp;
+
+	/*Abilities Component*/
+	UPROPERTY(EditAnywhere, Category = "Ability Component")
+	float BaseAttackCost;
+	
+	UPROPERTY(EditAnywhere, Category = "Ability Component")
+	float MaxEnergy;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability Component")
+	float EnergyRegenerateRate;
+	
+	float EnergyVal;
+
+	/*HitResult used for getting mouse position to UpdateLookDir()*/
+	FHitResult OutHit;
+
+	UPROPERTY()
+	APlayerController* PlayerController;
 };
