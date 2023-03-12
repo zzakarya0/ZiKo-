@@ -57,6 +57,8 @@ void AWizardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AWizardCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AWizardCharacter::MoveRight);
+
+	PlayerInputComponent->BindAction(TEXT("BaseAttack"), EInputEvent::IE_Pressed, this, &AWizardCharacter::BaseAttack);
 }
 
 void AWizardCharacter::UpdateLookDir()
@@ -65,18 +67,18 @@ void AWizardCharacter::UpdateLookDir()
 	//DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 5.f, 10.f, FColor::Red, true);
 
 	const FVector Forward = GetActorForwardVector();
-	const FVector CharacterToMousePos = OutHit.ImpactPoint - GetActorLocation();
+	const FVector CharacterToMouse = OutHit.ImpactPoint - GetActorLocation();
 	
 	//Get angle between player forward and mouse position
-	const float CosAngle = FVector::DotProduct(Forward, CharacterToMousePos) / (Forward.Size() * CharacterToMousePos.Size());
+	const float CosAngle = FVector::DotProduct(Forward, CharacterToMouse) / (Forward.Size() * CharacterToMouse.Size());
 	float Angle = FMath::Acos(CosAngle);
 	Angle = FMath::RadiansToDegrees(Angle);
 
 	//Check if mouse position is in right/left of player
-	const float CosDirAngle = FVector::DotProduct(GetActorRightVector(), CharacterToMousePos) / (GetActorForwardVector().Size() * CharacterToMousePos.Size());
+	const float CosDirAngle = FVector::DotProduct(GetActorRightVector(), CharacterToMouse) / (GetActorForwardVector().Size() * CharacterToMouse.Size());
 	float LookDir = FMath::Acos(CosDirAngle);
 	LookDir = FMath::RadiansToDegrees(LookDir);
-	LookDir = LookDir < 90.f? Angle : 360.f - Angle; //FIXME: Weird rotation when mouse transitions from left to right or inverse
+	LookDir = LookDir < 90.f? Angle : 360.f - Angle; //FIXME: Weird rotation when mouse transition from left to right or inverse
 	
 	SetActorRotation(FRotator(0.f, LookDir, 0.f));
 	OutHit.Reset();
@@ -85,7 +87,7 @@ void AWizardCharacter::UpdateLookDir()
 void AWizardCharacter::RegenerateEnergy(const float DeltaTime)
 {
 	EnergyVal = FMath::Clamp(EnergyVal + (EnergyRegenerateRate * DeltaTime), 0.f, MaxEnergy);
-	//UE_LOG(LogTemp)
+	UE_LOG(LogTemp, Warning, TEXT("Energy is: %f"), EnergyVal);
 }
 
 void AWizardCharacter::MoveForward(float AxisValue)
@@ -96,4 +98,11 @@ void AWizardCharacter::MoveForward(float AxisValue)
 void AWizardCharacter::MoveRight(float AxisValue)
 {
 	AddMovementInput(GetActorRightVector(), AxisValue);
+}
+
+void AWizardCharacter::BaseAttack()
+{
+	if (EnergyVal < BaseAttackCost) return;
+	
+	EnergyVal -= BaseAttackCost;
 }
