@@ -29,11 +29,11 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly)
+	UInteractBox* InteractBox;
+	
+	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* Wand;
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	USceneComponent* MagicSpawnPoint;
-
-	UPROPERTY(EditDefaultsOnly)
-	UInteractBox* InteractBox;
 };

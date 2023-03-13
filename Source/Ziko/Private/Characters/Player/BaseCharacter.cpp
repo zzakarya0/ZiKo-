@@ -3,6 +3,7 @@
 
 #include "Characters/Player/BaseCharacter.h"
 
+#include "Actors/MagicWand.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -25,6 +26,7 @@ ABaseCharacter::ABaseCharacter()
 	EnergyRegenerateRate = -1.f;
 	EnergyVal = -1.f;
 
+	MagicWand = nullptr;
 	PlayerController = nullptr;
 }
 
@@ -98,3 +100,16 @@ void ABaseCharacter::RegenerateEnergy(const float DeltaTime)
 	//UE_LOG(LogTemp, Warning, TEXT("Energy is: %f"), EnergyVal);
 }
 
+void ABaseCharacter::PickUp(AActor* const Item)
+{
+	check(Item);
+	//If player already armed, add item to the inventory
+	if (MagicWand) return;
+
+	//Equip weapon to the character
+	Item->SetActorLocation(FVector(0.f));
+	Item->AttachToComponent(GetMesh() ,FAttachmentTransformRules::KeepRelativeTransform, WeaponAttachmentSocketName);
+	Item->SetOwner(this);
+	MagicWand =	Cast<AMagicWand>(Item);	//FIXME: Extend pickup functionality for weapons/items, weapons: overload_1 to pickup and wear, items/potions/other: overload_2 add to inventory. Or add boolean arg bIsWeapon
+	
+}

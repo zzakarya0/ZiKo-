@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
+class AMagicWand;
 class UCameraComponent;
 class USpringArmComponent;
 
@@ -18,13 +19,6 @@ public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	/*Perform character base attack*/
-	virtual void BaseAttack() PURE_VIRTUAL(ABaseCharacter::BaseAttack, );
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -32,6 +26,19 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/*Pick up actors*/
+	void PickUp(AActor* const Item);
+
+	UFUNCTION(BlueprintPure)
+	bool IsArmed() const { return MagicWand != nullptr; }
+	
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	/*Perform character base attack*/
+	virtual void BaseAttack() PURE_VIRTUAL(ABaseCharacter::BaseAttack, );
+	
 private:
 	/*Handle character movement*/
 	void MoveForward(float AxisValue);
@@ -42,16 +49,16 @@ private:
 	
 	/*Regenerate player power energy*/
 	void RegenerateEnergy(const float DeltaTime);
-
+	
 protected:
 	/*Abilities Component*/
-	UPROPERTY(EditAnywhere, Category = "Ability Component")
+	UPROPERTY(EditAnywhere, Category = "Ability Components")
 	float BaseAttackCost;
 	
-	UPROPERTY(EditAnywhere, Category = "Ability Component")
+	UPROPERTY(EditAnywhere, Category = "Ability Components")
 	float MaxEnergy;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability Component")
+	UPROPERTY(EditDefaultsOnly, Category = "Ability Components")
 	float EnergyRegenerateRate;
 	
 	float EnergyVal;
@@ -64,9 +71,15 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Camera Components")
 	UCameraComponent* CameraComp;
 
-	/*HitResult used for getting mouse position to UpdateLookDir()*/
-	FHitResult OutHit;
-
+	UPROPERTY()
+	AMagicWand* MagicWand;
+	
+	UPROPERTY(EditAnywhere)
+	FName WeaponAttachmentSocketName;
+	
 	UPROPERTY()
 	APlayerController* PlayerController;
+	
+	/*HitResult used for getting mouse position to UpdateLookDir()*/
+	FHitResult OutHit;
 };

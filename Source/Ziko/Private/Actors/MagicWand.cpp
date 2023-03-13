@@ -11,14 +11,14 @@ AMagicWand::AMagicWand()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	InteractBox = CreateDefaultSubobject<UInteractBox>(TEXT("Interact Box"));
+	SetRootComponent(InteractBox);
+	
 	Wand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Wand"));
-	SetRootComponent(Wand);
+	Wand->SetupAttachment(RootComponent);
 
 	MagicSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Magic Spawn Point"));
 	MagicSpawnPoint->SetupAttachment(RootComponent);
-
-	InteractBox = CreateDefaultSubobject<UInteractBox>(TEXT("Interact Box"));
-	InteractBox->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
