@@ -4,6 +4,7 @@
 #include "Characters/Player/BaseCharacter.h"
 
 #include "Actors/MagicWand.h"
+#include "Actors/PlayerCharacterController.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -27,7 +28,7 @@ ABaseCharacter::ABaseCharacter()
 	EnergyVal = -1.f;
 
 	MagicWand = nullptr;
-	PlayerController = nullptr;
+	PCController = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -36,9 +37,9 @@ void ABaseCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	EnergyVal = MaxEnergy;
-
-	PlayerController = Cast<APlayerController>(GetController());
-	check(PlayerController);
+	
+	PCController = Cast<APlayerCharacterController>(GetController());
+	check(PCController);
 }
 
 // Called every frame
@@ -54,11 +55,12 @@ void ABaseCharacter::Tick(float DeltaTime)
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ABaseCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ABaseCharacter::MoveRight);
 
 	PlayerInputComponent->BindAction(TEXT("BaseAttack"), EInputEvent::IE_Pressed, this, &ABaseCharacter::BaseAttack);
+	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &ABaseCharacter::Interact);
 }
 
 void ABaseCharacter::MoveForward(float AxisValue)
@@ -71,9 +73,22 @@ void ABaseCharacter::MoveRight(float AxisValue)
 	AddMovementInput(GetActorRightVector(), AxisValue);
 }
 
+void ABaseCharacter::Interact()
+{
+	if (InteractableActorsInRange.Num() == 0) return;	//FIXME: Couldn't find TArray::IsEmpty()??
+
+	AActor* Item = InteractableActorsInRange[0];	//FIXME: Get closest item based on distance and player look direction
+	check(Item);
+	
+	if (Item->ActorHasTag(PickableItemTag) && !MagicWand) PickUp(Item);
+	// if (Item->ActorHasTag(PickableItemTag) && MagicWand) add to inventory;
+
+	InteractableActorsInRange.Remove(Item);
+}
+
 void ABaseCharacter::UpdateLookDir()
 {
-	if (!PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, OutHit)) return;
+	if (!PCController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, OutHit)) return;
 	//DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 5.f, 10.f, FColor::Red, true);
 
 	const FVector Forward = GetActorForwardVector();
@@ -94,22 +109,34 @@ void ABaseCharacter::UpdateLookDir()
 	OutHit.Reset();
 }
 
-void ABaseCharacter::RegenerateEnergy(const float DeltaTime)
+void ABaseCharacter::AddInteractableActorInRange(AActor* Item)
 {
-	EnergyVal = FMath::Clamp(EnergyVal + (EnergyRegenerateRate * DeltaTime), 0.f, MaxEnergy);
-	//UE_LOG(LogTemp, Warning, TEXT("Energy is: %f"), EnergyVal);
+	if (InteractableActorsInRange.Contains(Item)) return;
+
+	InteractableActorsInRange.Add(Item);
+}
+
+void ABaseCharacter::RemoveInteractableActorInRange(AActor* Item)
+{
+	if (InteractableActorsInRange.Num() == 0) return;
+	
+	InteractableActorsInRange.Remove(Item);
 }
 
 void ABaseCharacter::PickUp(AActor* const Item)
 {
 	check(Item);
-	//If player already armed, add item to the inventory
-	if (MagicWand) return;
-
-	//Equip weapon to the character
 	Item->SetActorLocation(FVector(0.f));
 	Item->AttachToComponent(GetMesh() ,FAttachmentTransformRules::KeepRelativeTransform, WeaponAttachmentSocketName);
 	Item->SetOwner(this);
-	MagicWand =	Cast<AMagicWand>(Item);	//FIXME: Extend pickup functionality for weapons/items, weapons: overload_1 to pickup and wear, items/potions/other: overload_2 add to inventory. Or add boolean arg bIsWeapon
-	
+	MagicWand =	Cast<AMagicWand>(Item);	/*FIXME: Extend pickup functionality for weapons/items, weapons: overload_1 to
+										  pickup and wear, items/potions/other: overload_2 add to inventory.
+										  Or add boolean arg bIsWeapon*/
+	check(MagicWand);
+	MagicWand->SetOverlapEvents(false);
+}
+
+void ABaseCharacter::RegenerateEnergy(const float DeltaTime)
+{
+	EnergyVal = FMath::Clamp(EnergyVal + (EnergyRegenerateRate * DeltaTime), 0.f, MaxEnergy);
 }

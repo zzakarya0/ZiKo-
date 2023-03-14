@@ -7,6 +7,7 @@
 #include "BaseCharacter.generated.h"
 
 class AMagicWand;
+class APlayerCharacterController;
 class UCameraComponent;
 class USpringArmComponent;
 
@@ -26,8 +27,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	/*Pick up actors*/
-	void PickUp(AActor* const Item);
+	void AddInteractableActorInRange(AActor* Item);
+
+	void RemoveInteractableActorInRange(AActor* Item);
 
 	UFUNCTION(BlueprintPure)
 	bool IsArmed() const { return MagicWand != nullptr; }
@@ -43,6 +45,12 @@ private:
 	/*Handle character movement*/
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
+
+	/*Interact with closest actor in range*/
+	void Interact();
+
+	/*Pick up actor*/
+	void PickUp(AActor* const Item);
 	
 	/*Update character look direction*/
 	void UpdateLookDir();
@@ -70,15 +78,24 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Camera Components")
 	UCameraComponent* CameraComp;
-
+	
 	UPROPERTY()
 	AMagicWand* MagicWand;
-	
-	UPROPERTY(EditAnywhere)
+
+	/*Tag for the weapon attachment socket*/
+	UPROPERTY(EditAnywhere, Category = "Tags")
 	FName WeaponAttachmentSocketName;
+
+	UPROPERTY(EditAnywhere, Category = "Tags")
+	FName PickableItemTag;
 	
+	/*Controller for the player*/
 	UPROPERTY()
-	APlayerController* PlayerController;
+	APlayerCharacterController* PCController;
+
+	/*Array of interactable actors that the player triggered their overlap event*/
+	UPROPERTY()
+	TArray<AActor*> InteractableActorsInRange;
 	
 	/*HitResult used for getting mouse position to UpdateLookDir()*/
 	FHitResult OutHit;

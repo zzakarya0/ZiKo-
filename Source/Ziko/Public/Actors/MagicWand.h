@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/InteractBox.h"
 #include "GameFramework/Actor.h"
 #include "MagicWand.generated.h"
 
@@ -25,7 +26,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	/*Perform Wand Base Attack*/
 	void BaseAttack();
+
+	/*Enable/Disable overlap events for interact box*/
+	void SetOverlapEvents(const bool GenerateOverlapEvents) const { InteractBox->SetGenerateOverlapEvents(GenerateOverlapEvents); }
 
 private:
 	UPROPERTY(EditDefaultsOnly)

@@ -6,12 +6,13 @@
 #include "GameFramework/PlayerController.h"
 #include "PlayerCharacterController.generated.h"
 
+class UInteractWidget;
+
 /**
- * 
+ * Controller for characters controlled by the player. 
  */
 UCLASS()
 class ZIKO_API APlayerCharacterController : public APlayerController
 {
 	GENERATED_BODY()
-	
 };

@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
 #include "InteractBox.generated.h"
+
+class UWidgetComponent;
+class UInteractWidget;
 
 /**
  * 
@@ -17,6 +21,9 @@ class ZIKO_API UInteractBox : public UBoxComponent
 public:
 	UInteractBox();
 
+protected:
+	virtual void BeginPlay() override;
+
 private:
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -25,4 +32,12 @@ private:
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex);
+
+private:
+	UPROPERTY(EditAnywhere)
+	UWidgetComponent* InteractWidget;
+
+	/*WBP_UInteractWidget*/
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UInteractWidget> BpInteractWidget;
 };

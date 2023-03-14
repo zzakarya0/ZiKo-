@@ -25,13 +25,11 @@ AMagicWand::AMagicWand()
 void AMagicWand::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 // Called every frame
 void AMagicWand::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AMagicWand::BaseAttack()
