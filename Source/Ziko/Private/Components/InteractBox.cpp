@@ -34,8 +34,6 @@ void UInteractBox::BeginPlay()
 void UInteractBox::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Display, TEXT("OverlapBegin Genereated"));
-	
 	// Owner is the actor this box is attached to.
 	AActor* Owner = GetOwner();
 	if (Owner && OtherActor && OtherActor != Owner)
@@ -52,8 +50,6 @@ void UInteractBox::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 void UInteractBox::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Display, TEXT("OverlapEnd Genereated"));
-	
 	// Owner is the actor this box is attached to.
 	AActor* Owner = GetOwner();
 	if (Owner && OtherActor && OtherActor != Owner)
