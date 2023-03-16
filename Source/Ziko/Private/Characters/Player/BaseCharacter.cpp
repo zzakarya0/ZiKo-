@@ -3,6 +3,7 @@
 
 #include "Characters/Player/BaseCharacter.h"
 
+#include "NetworkMessage.h"
 #include "Actors/MagicWand.h"
 #include "Actors/PlayerCharacterController.h"
 #include "Camera/CameraComponent.h"
@@ -73,19 +74,6 @@ void ABaseCharacter::MoveRight(float AxisValue)
 	AddMovementInput(GetActorRightVector(), AxisValue);
 }
 
-void ABaseCharacter::Interact()
-{
-	if (InteractableActorsInRange.Num() == 0) return;	//FIXME: Couldn't find TArray::IsEmpty()??
-
-	AActor* Item = InteractableActorsInRange[0];	//FIXME: Get closest item based on distance and player look direction
-	check(Item);
-	
-	if (Item->ActorHasTag(PickableItemTag) && !MagicWand) PickUp(Item);
-	// if (Item->ActorHasTag(PickableItemTag) && MagicWand) add to inventory;
-
-	InteractableActorsInRange.Remove(Item);
-}
-
 void ABaseCharacter::UpdateLookDir()
 {
 	if (!PCController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, OutHit)) return;
@@ -111,16 +99,48 @@ void ABaseCharacter::UpdateLookDir()
 
 void ABaseCharacter::AddInteractableActorInRange(AActor* Item)
 {
-	if (InteractableActorsInRange.Contains(Item)) return;
-
 	InteractableActorsInRange.Add(Item);
 }
 
 void ABaseCharacter::RemoveInteractableActorInRange(AActor* Item)
 {
-	if (InteractableActorsInRange.Num() == 0) return;
-	
 	InteractableActorsInRange.Remove(Item);
+}
+
+void ABaseCharacter::Interact()
+{
+	if (InteractableActorsInRange.Num() == 0) return;	//FIXME: Couldn't find TArray::IsEmpty()??
+
+	AActor* const Item = GetClosestActorInRange();	//FIXME: Get closest item based on distance and player look direction
+	check(Item);
+	
+	if (Item->ActorHasTag(PickableItemTag) && !MagicWand) PickUp(Item);
+	// if (Item->ActorHasTag(PickableItemTag) && MagicWand) add to inventory;
+
+	InteractableActorsInRange.Remove(Item);
+}
+
+AActor* ABaseCharacter::GetClosestActorInRange() const
+{
+	const FVector PlayerFwd = GetActorForwardVector();
+	AActor* ClosestActor = nullptr;
+	float AngleInRad = 3.14f;	// initialize with ~180 deg
+	
+	for (AActor* const Item : InteractableActorsInRange)
+	{
+		const FVector PlayerToItem = Item->GetActorLocation() - GetActorLocation();
+		const float CosAngle = FVector::DotProduct(PlayerFwd, PlayerToItem) / (PlayerFwd.Size() * PlayerToItem.Size());
+		const float Angle = FMath::Acos(CosAngle);
+		
+		if (Angle <= AngleInRad)
+		{
+			AngleInRad = Angle;
+			ClosestActor = Item;
+		}
+	}
+	
+	check(ClosestActor);
+	return ClosestActor;
 }
 
 void ABaseCharacter::PickUp(AActor* const Item)
@@ -130,7 +150,7 @@ void ABaseCharacter::PickUp(AActor* const Item)
 	Item->AttachToComponent(GetMesh() ,FAttachmentTransformRules::KeepRelativeTransform, WeaponAttachmentSocketName);
 	Item->SetOwner(this);
 	MagicWand =	Cast<AMagicWand>(Item);	/*FIXME: Extend pickup functionality for weapons/items, weapons: overload_1 to
-										  pickup and wear, items/potions/other: overload_2 add to inventory.
+										  pickup and equip, items/potions/other: overload_2 add to inventory.
 										  Or add boolean arg bIsWeapon*/
 	check(MagicWand);
 	MagicWand->SetOverlapEvents(false);

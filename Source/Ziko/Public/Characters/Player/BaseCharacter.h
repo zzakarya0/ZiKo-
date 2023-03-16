@@ -49,6 +49,8 @@ private:
 	/*Interact with closest actor in range*/
 	void Interact();
 
+	AActor* GetClosestActorInRange() const;
+
 	/*Pick up actor*/
 	void PickUp(AActor* const Item);
 	
@@ -93,9 +95,9 @@ private:
 	UPROPERTY()
 	APlayerCharacterController* PCController;
 
-	/*Array of interactable actors that the player triggered their overlap event*/
+	/*Set of interactable actors that the player triggered their overlap event*/
 	UPROPERTY()
-	TArray<AActor*> InteractableActorsInRange;
+	TSet<AActor*> InteractableActorsInRange; 
 	
 	/*HitResult used for getting mouse position to UpdateLookDir()*/
 	FHitResult OutHit;
