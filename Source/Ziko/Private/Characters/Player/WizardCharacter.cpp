@@ -3,6 +3,8 @@
 
 #include "Characters/Player/WizardCharacter.h"
 
+#include "Actors/MagicWand.h"
+
 
 // Sets default values
 AWizardCharacter::AWizardCharacter()
@@ -32,7 +34,18 @@ void AWizardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void AWizardCharacter::BaseAttack()
 {
-	 if (EnergyVal < BaseAttackCost) return;
+	if (bIsAttacking) return;
 	
-	 EnergyVal -= BaseAttackCost;
+	const AMagicWand* const MagicWand = GetPrimaryWeapon();
+	if (!MagicWand) return;
+
+	const int8 AttackEnergyCost = MagicWand->GetBaseAttackCost();
+	if (EnergyVal < AttackEnergyCost) return;
+	
+	//GetMesh()->PlayAnimation(BaseAttackAnim, false);
+	bIsAttacking = 1;
+	GetWorldTimerManager().SetTimer(AttackTimer, MagicWand, &AMagicWand::BaseAttack, BaseAttackWaitRate, false);
+	
+	EnergyVal -= AttackEnergyCost;
+	//bIsAttacking = false;
 }

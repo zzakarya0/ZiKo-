@@ -32,7 +32,12 @@ public:
 	void RemoveInteractableActorInRange(AActor* Item);
 
 	UFUNCTION(BlueprintPure)
-	bool IsArmed() const { return MagicWand != nullptr; }
+	bool IsArmed() const { return Weapon != nullptr; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsAttacking() const { return bIsAttacking; }
+
+	void SetAttackState(const bool IsAttacking) { bIsAttacking = IsAttacking; }
 	
 protected:
 	// Called when the game starts or when spawned
@@ -40,6 +45,8 @@ protected:
 
 	/*Perform character base attack*/
 	virtual void BaseAttack() PURE_VIRTUAL(ABaseCharacter::BaseAttack, );
+
+	const AMagicWand* const GetPrimaryWeapon() const { return Weapon; }
 	
 private:
 	/*Handle character movement*/
@@ -61,10 +68,15 @@ private:
 	void RegenerateEnergy(const float DeltaTime);
 	
 protected:
-	/*Abilities Component*/
-	UPROPERTY(EditAnywhere, Category = "Ability Components")
-	float BaseAttackCost;
+	UPROPERTY(EditAnywhere, Category = "Animations")
+	UAnimSequence* BaseAttackAnim;
+
+	UPROPERTY(EditAnywhere, Category = "Animations")
+	float BaseAttackWaitRate;
 	
+	FTimerHandle AttackTimer;
+	
+	/*Abilities Component*/
 	UPROPERTY(EditAnywhere, Category = "Ability Components")
 	float MaxEnergy;
 
@@ -72,6 +84,8 @@ protected:
 	float EnergyRegenerateRate;
 	
 	float EnergyVal;
+
+	uint8 bIsAttacking : 1;
 	
 private:
 	/*Camera Components*/		
@@ -80,9 +94,6 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Camera Components")
 	UCameraComponent* CameraComp;
-	
-	UPROPERTY()
-	AMagicWand* MagicWand;
 
 	/*Tag for the weapon attachment socket*/
 	UPROPERTY(EditAnywhere, Category = "Tags")
@@ -90,6 +101,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Tags")
 	FName PickableItemTag;
+
+	/*Primary weapon player is holding*/
+	UPROPERTY()
+	AMagicWand* Weapon;
 	
 	/*Controller for the player*/
 	UPROPERTY()

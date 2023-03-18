@@ -3,6 +3,7 @@
 
 #include "Actors/MagicWand.h"
 
+#include "Characters/Player/BaseCharacter.h"
 #include "Components/InteractBox.h"
 
 // Sets default values
@@ -32,8 +33,20 @@ void AMagicWand::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AMagicWand::BaseAttack()
+void AMagicWand::BaseAttack() const
 {
+	UWorld* const World = GetWorld();
+	check(World);
 	
+	ABaseCharacter* const MyOwner = Cast<ABaseCharacter>(GetOwner());
+	check(MyOwner);
+
+	FVector const SpawnPoint = MagicSpawnPoint->GetComponentLocation();
+	FRotator const SpawnRotation =	FRotator(0.f, MyOwner->GetActorRotation().Yaw, 0.f);
+	AActor* const MagicBullet = World->SpawnActor(BpMagicBullet, &SpawnPoint, &SpawnRotation);
+	check(MagicBullet);
+	
+	MagicBullet->SetOwner(MyOwner);
+	MyOwner->SetAttackState(false);
 }
 
