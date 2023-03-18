@@ -26,19 +26,36 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	/*Perform Wand Base Attack*/
-	void BaseAttack();
-
 	/*Enable/Disable overlap events for interact box*/
 	void SetOverlapEvents(const bool GenerateOverlapEvents) const { InteractBox->SetGenerateOverlapEvents(GenerateOverlapEvents); }
 
-private:
-	UPROPERTY(EditDefaultsOnly)
-	UInteractBox* InteractBox;
+	/*Perform Wand Base Attack*/
+	void BaseAttack() const;
 	
+	/*Send base attack energy cost to player*/
+	int8 GetBaseAttackCost() const { return BaseAttackCost; }
+
+private:
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* Wand;
 	
+	/*Interaction box that generates overlap events*/
+	UPROPERTY(EditDefaultsOnly)
+	UInteractBox* InteractBox;
+
+	/*Spawn point for magic to attack*/
 	UPROPERTY(EditAnywhere)
 	USceneComponent* MagicSpawnPoint;
+
+	/*Energy cost of base attack*/
+	UPROPERTY(EditAnywhere, Category = "Ability Attributes")
+	int8 BaseAttackCost;
+
+	/*Damage dealt by base attack*/
+	UPROPERTY(EditAnywhere, Category = "Ability Attributes")
+	int8 BaseAttackDamage;
+
+	/*Default actor to spawn when performing any attack*/
+	UPROPERTY(EditDefaultsOnly, Category = "Ability Attributes")
+	TSubclassOf<AActor> BpMagicBullet;
 };

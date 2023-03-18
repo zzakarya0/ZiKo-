@@ -7,6 +7,7 @@
 #include "Actors/MagicWand.h"
 #include "Actors/PlayerCharacterController.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -28,7 +29,9 @@ ABaseCharacter::ABaseCharacter()
 	EnergyRegenerateRate = -1.f;
 	EnergyVal = -1.f;
 
-	MagicWand = nullptr;
+	bIsAttacking = 0;
+
+	Weapon = nullptr;
 	PCController = nullptr;
 }
 
@@ -114,7 +117,7 @@ void ABaseCharacter::Interact()
 	AActor* const Item = GetClosestActorInRange();	//FIXME: Get closest item based on distance and player look direction
 	check(Item);
 	
-	if (Item->ActorHasTag(PickableItemTag) && !MagicWand) PickUp(Item);
+	if (Item->ActorHasTag(PickableItemTag) && !Weapon) PickUp(Item);
 	// if (Item->ActorHasTag(PickableItemTag) && MagicWand) add to inventory;
 
 	InteractableActorsInRange.Remove(Item);
@@ -149,11 +152,11 @@ void ABaseCharacter::PickUp(AActor* const Item)
 	Item->SetActorLocation(FVector(0.f));
 	Item->AttachToComponent(GetMesh() ,FAttachmentTransformRules::KeepRelativeTransform, WeaponAttachmentSocketName);
 	Item->SetOwner(this);
-	MagicWand =	Cast<AMagicWand>(Item);	/*FIXME: Extend pickup functionality for weapons/items, weapons: overload_1 to
+	Weapon = Cast<AMagicWand>(Item);	/*FIXME: Extend pickup functionality for weapons/items, weapons: overload_1 to
 										  pickup and equip, items/potions/other: overload_2 add to inventory.
 										  Or add boolean arg bIsWeapon*/
-	check(MagicWand);
-	MagicWand->SetOverlapEvents(false);
+	check(Weapon);
+	Weapon->SetOverlapEvents(false);
 }
 
 void ABaseCharacter::RegenerateEnergy(const float DeltaTime)
