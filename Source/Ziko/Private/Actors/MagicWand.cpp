@@ -47,6 +47,6 @@ void AMagicWand::BaseAttack() const
 	check(MagicBullet);
 	
 	MagicBullet->SetOwner(MyOwner);
-	MyOwner->SetAttackState(false);
+	MyOwner->SetAttackState(EAttackType::AT_None);
 }
 

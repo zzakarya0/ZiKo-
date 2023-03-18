@@ -34,7 +34,7 @@ void AWizardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void AWizardCharacter::BaseAttack()
 {
-	if (bIsAttacking) return;
+	if (AttackType != EAttackType::AT_None) return;
 	
 	const AMagicWand* const MagicWand = GetPrimaryWeapon();
 	if (!MagicWand) return;
@@ -43,9 +43,8 @@ void AWizardCharacter::BaseAttack()
 	if (EnergyVal < AttackEnergyCost) return;
 	
 	//GetMesh()->PlayAnimation(BaseAttackAnim, false);
-	bIsAttacking = 1;
+	AttackType = EAttackType::AT_Basic;
 	GetWorldTimerManager().SetTimer(AttackTimer, MagicWand, &AMagicWand::BaseAttack, BaseAttackWaitRate, false);
 	
 	EnergyVal -= AttackEnergyCost;
-	//bIsAttacking = false;
 }
