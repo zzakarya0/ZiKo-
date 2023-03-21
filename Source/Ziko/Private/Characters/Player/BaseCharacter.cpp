@@ -53,10 +53,15 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 1000, FColor::Green, true);
-
+	// DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + (GetActorForwardVector() * 1000), FColor::Red, true);
+	// UE_LOG(LogTemp, Warning, TEXT("BEFORE FUNCTION CALL: Rotation = %s"), *GetActorRotation().ToCompactString());
+	// UE_LOG(LogTemp, Warning, TEXT("BEFORE FUNCTION CALL: FOrward Vector = %s"), *GetActorForwardVector().ToCompactString());
+	
 	UpdateLookDir();
 	RegenerateEnergy(DeltaTime); //FIXME: Don't regenerate in Tick, use Timer maybe
+
+	// UE_LOG(LogTemp, Warning, TEXT("AFTER FUNCTION CALL: Rotation = %s"), *GetActorRotation().ToCompactString());
+	// UE_LOG(LogTemp, Warning, TEXT("AFTER FUNCTION CALL: FOrward Vector = %s"), *GetActorForwardVector().ToCompactString());
 }
 
 // Called to bind functionality to input
@@ -68,13 +73,14 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ABaseCharacter::MoveRight);
 
 	PlayerInputComponent->BindAction(TEXT("BaseAttack"), EInputEvent::IE_Pressed, this, &ABaseCharacter::BaseAttack);
+	PlayerInputComponent->BindAction(TEXT("Ability1"), EInputEvent::IE_Pressed, this, &ABaseCharacter::FirstAbilityAttack);
+	PlayerInputComponent->BindAction(TEXT("Ability2"), EInputEvent::IE_Pressed, this, &ABaseCharacter::SecondAbilityAttack);
 	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &ABaseCharacter::Interact);
 }
 
 void ABaseCharacter::MoveForward(float AxisValue)
 {
 	AddMovementInput(GetActorForwardVector(), AxisValue);
-	
 }
 
 void ABaseCharacter::MoveRight(float AxisValue)
@@ -88,8 +94,6 @@ void ABaseCharacter::UpdateLookDir()
 	//DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 5.f, 10.f, FColor::Red, true);
 
 	const FRotator InitialRotation = GetActorRotation();
-	UE_LOG(LogTemp, Warning, TEXT("Initial Rotation = %s"), *InitialRotation.ToCompactString());
-	
 	const FVector Forward =	GetActorForwardVector().GetSafeNormal();
 	FVector CharacterToMouse = OutHit.ImpactPoint - GetActorLocation();
 	CharacterToMouse = CharacterToMouse.GetSafeNormal();
@@ -104,11 +108,9 @@ void ABaseCharacter::UpdateLookDir()
 	float LookDir = FMath::Acos(CosDirAngle);
 	LookDir = FMath::RadiansToDegrees(LookDir);
 	LookDir = LookDir < 90.f? Angle : - Angle; //FIXME: Weird rotation when mouse transition from left to right or inverse
-
-	UE_LOG(LogTemp, Warning, TEXT("Angle = %f"), Angle);
-	UE_LOG(LogTemp, Warning, TEXT("LookDir = %f"), LookDir);
 	
 	AddActorLocalRotation(FRotator(0.f, LookDir, 0.f));
+	//UE_LOG(LogTemp, Warning, TEXT("Within UpdateLookDir: Rotation = %s"), *GetActorRotation().ToCompactString());
 	OutHit.Reset();
 }
 

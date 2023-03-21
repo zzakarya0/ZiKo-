@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "MagicWand.generated.h"
 
+enum class EAttackType : uint8;
 class UInteractBox;
 
 UCLASS()
@@ -31,10 +32,14 @@ public:
 
 	/*Perform Wand Base Attack*/
 	void BaseAttack() const;
-	
-	/*Send base attack energy cost to player*/
-	int8 GetBaseAttackCost() const { return BaseAttackCost; }
 
+	void FirstAbilityAttack() const;
+
+	void SecondAbilityAttack() const;
+	
+	/*Send attack energy cost to player*/
+	int8 GetAttackCost(const EAttackType AttackType) const;
+	
 private:
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* Wand;
@@ -50,6 +55,12 @@ private:
 	/*Energy cost of base attack*/
 	UPROPERTY(EditAnywhere, Category = "Ability Attributes")
 	int8 BaseAttackCost;
+
+	UPROPERTY(EditAnywhere, Category = "Ability Attributes")
+	int8 FirstAbilityAttackCost;
+
+	UPROPERTY(EditAnywhere, Category = "Ability Attributes")
+	int8 SecondAbilityAttackCost;
 
 	/*Damage dealt by base attack*/
 	UPROPERTY(EditAnywhere, Category = "Ability Attributes")

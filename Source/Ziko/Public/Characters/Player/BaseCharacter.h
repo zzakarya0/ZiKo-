@@ -46,6 +46,12 @@ protected:
 	/*Perform character base attack*/
 	virtual void BaseAttack() PURE_VIRTUAL(ABaseCharacter::BaseAttack, );
 
+	/*Perform character ability 1 attack*/
+	virtual void FirstAbilityAttack() PURE_VIRTUAL(ABaseCharacter::FirstAbilityAttack, );
+
+	/*Perform character ability 1 attack*/
+	virtual void SecondAbilityAttack() PURE_VIRTUAL(ABaseCharacter::SecondAbilityAttack, );
+
 	const AMagicWand* const GetPrimaryWeapon() const { return Weapon; }
 	
 private:
@@ -68,9 +74,6 @@ private:
 	void RegenerateEnergy(const float DeltaTime);
 	
 protected:
-	UPROPERTY(EditAnywhere, Category = "Animations")
-	UAnimSequence* BaseAttackAnim;
-
 	UPROPERTY(EditAnywhere, Category = "Animations")
 	float BaseAttackWaitRate;
 	
