@@ -25,6 +25,12 @@ protected:
 
 	/*Perform character base attack*/
 	virtual void BaseAttack() override;
+
+	/*Perform character base attack*/
+	virtual void FirstAbilityAttack() override;
+
+	/*Perform character base attack*/
+	virtual void SecondAbilityAttack() override;
 	
 public:	
 	// Called every frame

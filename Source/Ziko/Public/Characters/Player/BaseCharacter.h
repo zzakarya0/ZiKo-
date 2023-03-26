@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Ziko.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
@@ -10,6 +11,7 @@ class AMagicWand;
 class APlayerCharacterController;
 class UCameraComponent;
 class USpringArmComponent;
+
 
 UCLASS()
 class ZIKO_API ABaseCharacter : public ACharacter
@@ -30,14 +32,12 @@ public:
 	void AddInteractableActorInRange(AActor* Item);
 
 	void RemoveInteractableActorInRange(AActor* Item);
-
-	UFUNCTION(BlueprintPure)
+	
 	bool IsArmed() const { return Weapon != nullptr; }
+	bool IsAlive() const { return bIsAlive ;}
 
-	UFUNCTION(BlueprintPure)
-	bool IsAttacking() const { return bIsAttacking; }
-
-	void SetAttackState(const bool IsAttacking) { bIsAttacking = IsAttacking; }
+	void SetAttackState(const EAttackType Type) { AttackType = Type; }
+	EAttackType GetAttackState() const { return AttackType; }
 	
 protected:
 	// Called when the game starts or when spawned
@@ -45,6 +45,12 @@ protected:
 
 	/*Perform character base attack*/
 	virtual void BaseAttack() PURE_VIRTUAL(ABaseCharacter::BaseAttack, );
+
+	/*Perform character ability 1 attack*/
+	virtual void FirstAbilityAttack() PURE_VIRTUAL(ABaseCharacter::FirstAbilityAttack, );
+
+	/*Perform character ability 1 attack*/
+	virtual void SecondAbilityAttack() PURE_VIRTUAL(ABaseCharacter::SecondAbilityAttack, );
 
 	const AMagicWand* const GetPrimaryWeapon() const { return Weapon; }
 	
@@ -59,7 +65,7 @@ private:
 	AActor* GetClosestActorInRange() const;
 
 	/*Pick up actor*/
-	void PickUp(AActor* const Item);
+	void Equip(AActor* const Item);
 	
 	/*Update character look direction*/
 	void UpdateLookDir();
@@ -68,9 +74,6 @@ private:
 	void RegenerateEnergy(const float DeltaTime);
 	
 protected:
-	UPROPERTY(EditAnywhere, Category = "Animations")
-	UAnimSequence* BaseAttackAnim;
-
 	UPROPERTY(EditAnywhere, Category = "Animations")
 	float BaseAttackWaitRate;
 	
@@ -85,7 +88,9 @@ protected:
 	
 	float EnergyVal;
 
-	uint8 bIsAttacking : 1;
+	EAttackType AttackType;
+
+	bool bIsAlive;
 	
 private:
 	/*Camera Components*/		

@@ -34,18 +34,48 @@ void AWizardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void AWizardCharacter::BaseAttack()
 {
-	if (bIsAttacking) return;
+	if (AttackType != EAttackType::AT_None) return;
 	
 	const AMagicWand* const MagicWand = GetPrimaryWeapon();
 	if (!MagicWand) return;
 
-	const int8 AttackEnergyCost = MagicWand->GetBaseAttackCost();
+	const int8 AttackEnergyCost = MagicWand->GetAttackCost(EAttackType::AT_Basic);
 	if (EnergyVal < AttackEnergyCost) return;
 	
-	//GetMesh()->PlayAnimation(BaseAttackAnim, false);
-	bIsAttacking = 1;
+	AttackType = EAttackType::AT_Basic;
 	GetWorldTimerManager().SetTimer(AttackTimer, MagicWand, &AMagicWand::BaseAttack, BaseAttackWaitRate, false);
 	
 	EnergyVal -= AttackEnergyCost;
-	//bIsAttacking = false;
+}
+
+void AWizardCharacter::FirstAbilityAttack()
+{	
+	if (AttackType != EAttackType::AT_None) return;
+
+	const AMagicWand* const MagicWand = GetPrimaryWeapon();
+	if (!MagicWand) return;
+
+	const int8 AttackEnergyCost = MagicWand->GetAttackCost(EAttackType::AT_Ability1);
+	if (EnergyVal < AttackEnergyCost) return;
+
+	AttackType = EAttackType::AT_Ability1;
+	GetWorldTimerManager().SetTimer(AttackTimer, MagicWand, &AMagicWand::FirstAbilityAttack, BaseAttackWaitRate, false);
+	
+	EnergyVal -= AttackEnergyCost;
+}
+
+void AWizardCharacter::SecondAbilityAttack()
+{
+	if (AttackType != EAttackType::AT_None) return;
+
+	const AMagicWand* const MagicWand = GetPrimaryWeapon();
+	if (!MagicWand) return;
+
+	const int8 AttackEnergyCost = MagicWand->GetAttackCost(EAttackType::AT_Ability2);
+	if (EnergyVal < AttackEnergyCost) return;
+
+	AttackType = EAttackType::AT_Ability2;
+	GetWorldTimerManager().SetTimer(AttackTimer, MagicWand, &AMagicWand::SecondAbilityAttack, BaseAttackWaitRate, false);
+	
+	EnergyVal -= AttackEnergyCost;
 }

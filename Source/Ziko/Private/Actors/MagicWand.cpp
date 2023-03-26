@@ -47,6 +47,54 @@ void AMagicWand::BaseAttack() const
 	check(MagicBullet);
 	
 	MagicBullet->SetOwner(MyOwner);
-	MyOwner->SetAttackState(false);
+	MyOwner->SetAttackState(EAttackType::AT_None);
+}
+
+void AMagicWand::FirstAbilityAttack() const
+{
+	UWorld* const World = GetWorld();
+	check(World);
+	
+	ABaseCharacter* const MyOwner = Cast<ABaseCharacter>(GetOwner());
+	check(MyOwner);
+
+	FVector const SpawnPoint = MagicSpawnPoint->GetComponentLocation();
+	FRotator const SpawnRotation =	FRotator(0.f, MyOwner->GetActorRotation().Yaw, 0.f);
+	AActor* const MagicBullet = World->SpawnActor(BpMagicBullet, &SpawnPoint, &SpawnRotation);
+	check(MagicBullet);
+	
+	MagicBullet->SetOwner(MyOwner);
+	MyOwner->SetAttackState(EAttackType::AT_None);
+}
+
+void AMagicWand::SecondAbilityAttack() const
+{
+	UWorld* const World = GetWorld();
+	check(World);
+	
+	ABaseCharacter* const MyOwner = Cast<ABaseCharacter>(GetOwner());
+	check(MyOwner);
+
+	FVector const SpawnPoint = MagicSpawnPoint->GetComponentLocation();
+	FRotator const SpawnRotation =	FRotator(0.f, MyOwner->GetActorRotation().Yaw, 0.f);
+	AActor* const MagicBullet = World->SpawnActor(BpMagicBullet, &SpawnPoint, &SpawnRotation);
+	check(MagicBullet);
+	
+	MagicBullet->SetOwner(MyOwner);
+	MyOwner->SetAttackState(EAttackType::AT_None);
+}
+
+int8 AMagicWand::GetAttackCost(const EAttackType AttackType) const
+{
+	switch (AttackType)
+	{
+		case EAttackType::AT_Basic: return BaseAttackCost;
+		case EAttackType::AT_Ability1: return BaseAttackCost;
+		case EAttackType::AT_Ability2: return BaseAttackCost;
+		
+		default:
+			check(nullptr); // should never reach this point
+			return -1;
+	}
 }
 
