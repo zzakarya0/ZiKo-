@@ -30,7 +30,7 @@ protected:
 private:
 	void UpdateAnimAttributes();
 
-	float GetRotationAngle() const;
+	float GetRotationAngle(const FVector& Direction) const;
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation Properties")
