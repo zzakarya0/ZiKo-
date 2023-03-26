@@ -11,13 +11,7 @@ AMagicWand::AMagicWand()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
-	InteractBox = CreateDefaultSubobject<UInteractBox>(TEXT("Interact Box"));
-	SetRootComponent(InteractBox);
 	
-	Wand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Wand"));
-	Wand->SetupAttachment(RootComponent);
-
 	MagicSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Magic Spawn Point"));
 	MagicSpawnPoint->SetupAttachment(RootComponent);
 }
@@ -82,19 +76,5 @@ void AMagicWand::SecondAbilityAttack() const
 	
 	MagicBullet->SetOwner(MyOwner);
 	MyOwner->SetAttackState(EAttackType::AT_None);
-}
-
-int8 AMagicWand::GetAttackCost(const EAttackType AttackType) const
-{
-	switch (AttackType)
-	{
-		case EAttackType::AT_Basic: return BaseAttackCost;
-		case EAttackType::AT_Ability1: return BaseAttackCost;
-		case EAttackType::AT_Ability2: return BaseAttackCost;
-		
-		default:
-			check(nullptr); // should never reach this point
-			return -1;
-	}
 }
 
