@@ -7,7 +7,7 @@
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
-class AMagicWand;
+class ABaseWeapon;
 class APlayerCharacterController;
 class UCameraComponent;
 class USpringArmComponent;
@@ -30,7 +30,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void AddInteractableActorInRange(AActor* Item);
-
 	void RemoveInteractableActorInRange(AActor* Item);
 	
 	bool IsArmed() const { return Weapon != nullptr; }
@@ -45,79 +44,63 @@ protected:
 
 	/*Perform character base attack*/
 	virtual void BaseAttack() PURE_VIRTUAL(ABaseCharacter::BaseAttack, );
-
-	/*Perform character ability 1 attack*/
 	virtual void FirstAbilityAttack() PURE_VIRTUAL(ABaseCharacter::FirstAbilityAttack, );
-
-	/*Perform character ability 1 attack*/
 	virtual void SecondAbilityAttack() PURE_VIRTUAL(ABaseCharacter::SecondAbilityAttack, );
 
-	const AMagicWand* const GetPrimaryWeapon() const { return Weapon; }
+	const ABaseWeapon* const GetPrimaryWeapon() const { return Weapon; }
 	
 private:
 	/*Handle character movement*/
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 
-	/*Interact with closest actor in range*/
-	void Interact();
-
 	AActor* GetClosestActorInRange() const;
 
+	/*Interact with closest actor in range*/
+	void Interact();
 	/*Pick up actor*/
 	void Equip(AActor* const Item);
 	
 	/*Update character look direction*/
 	void UpdateLookDir();
-	
 	/*Regenerate player power energy*/
 	void RegenerateEnergy(const float DeltaTime);
 	
 protected:
-	UPROPERTY(EditAnywhere, Category = "Animations")
-	float BaseAttackWaitRate;
-	
-	FTimerHandle AttackTimer;
-	
 	/*Abilities Component*/
 	UPROPERTY(EditAnywhere, Category = "Ability Components")
+	float BaseAttackWaitRate;
+	UPROPERTY(EditAnywhere, Category = "Ability Components")
 	float MaxEnergy;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Ability Components")
 	float EnergyRegenerateRate;
 	
 	float EnergyVal;
-
 	EAttackType AttackType;
-
 	bool bIsAlive;
+
+	FTimerHandle AttackTimer;
 	
 private:
 	/*Camera Components*/		
 	UPROPERTY(EditAnywhere, Category = "Camera Components")
 	USpringArmComponent* CameraSpringComp;
-	
 	UPROPERTY(EditAnywhere, Category = "Camera Components")
 	UCameraComponent* CameraComp;
 
 	/*Tag for the weapon attachment socket*/
 	UPROPERTY(EditAnywhere, Category = "Tags")
 	FName WeaponAttachmentSocketName;
-
 	UPROPERTY(EditAnywhere, Category = "Tags")
 	FName PickableItemTag;
-
-	/*Primary weapon player is holding*/
-	UPROPERTY()
-	AMagicWand* Weapon;
 	
-	/*Controller for the player*/
+	UPROPERTY()
+	ABaseWeapon* Weapon;
 	UPROPERTY()
 	APlayerCharacterController* PCController;
-
 	/*Set of interactable actors that the player triggered their overlap event*/
 	UPROPERTY()
-	TSet<AActor*> InteractableActorsInRange; 
+	TSet<AActor*> InteractableActorsInRange;
 	
 	/*HitResult used for getting mouse position to UpdateLookDir()*/
 	FHitResult OutHit;
