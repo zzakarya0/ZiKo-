@@ -31,11 +31,19 @@ public:
 	virtual void SecondAbilityAttack() const override;
 	
 private:
-	/*Spawn point for magic to attack*/
+	/*Spawn point for magic for projectile attacks*/
 	UPROPERTY(EditAnywhere)
 	USceneComponent* MagicSpawnPoint;
 
-	/*Default actor to spawn when performing any attack*/
-	UPROPERTY(EditDefaultsOnly, Category = "Ability Attributes")
+	/*Base ability attack attributes*/
+	UPROPERTY(EditDefaultsOnly, Category = "Base Attack")
 	TSubclassOf<AActor> BpMagicBullet;
+	
+	/*First ability attack attributes*/
+	UPROPERTY(EditDefaultsOnly, Category = "First Ability Attack")
+	TSubclassOf<AActor> BpIceCrystal;
+	UPROPERTY(EditAnywhere, Category = "First Ability Attack")
+	uint8 FreezingRange;
+	UPROPERTY(EditAnywhere, Category = "First Ability Attack")
+	uint8 IceCrystalZPos;
 };

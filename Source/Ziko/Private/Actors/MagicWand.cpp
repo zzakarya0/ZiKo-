@@ -3,6 +3,7 @@
 
 #include "Actors/MagicWand.h"
 
+#include "DrawDebugHelpers.h"
 #include "Characters/Player/BaseCharacter.h"
 #include "Components/InteractBox.h"
 
@@ -14,6 +15,10 @@ AMagicWand::AMagicWand()
 	
 	MagicSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Magic Spawn Point"));
 	MagicSpawnPoint->SetupAttachment(RootComponent);
+
+
+	FreezingRange = 0;
+	IceCrystalZPos = 0;
 }
 
 // Called when the game starts or when spawned
@@ -31,12 +36,13 @@ void AMagicWand::BaseAttack() const
 {
 	UWorld* const World = GetWorld();
 	check(World);
-	
 	ABaseCharacter* const MyOwner = Cast<ABaseCharacter>(GetOwner());
 	check(MyOwner);
 
 	FVector const SpawnPoint = MagicSpawnPoint->GetComponentLocation();
 	FRotator const SpawnRotation =	FRotator(0.f, MyOwner->GetActorRotation().Yaw, 0.f);
+
+	check(BpMagicBullet);
 	AActor* const MagicBullet = World->SpawnActor(BpMagicBullet, &SpawnPoint, &SpawnRotation);
 	check(MagicBullet);
 	
@@ -48,16 +54,20 @@ void AMagicWand::FirstAbilityAttack() const
 {
 	UWorld* const World = GetWorld();
 	check(World);
-	
 	ABaseCharacter* const MyOwner = Cast<ABaseCharacter>(GetOwner());
 	check(MyOwner);
 
-	FVector const SpawnPoint = MagicSpawnPoint->GetComponentLocation();
-	FRotator const SpawnRotation =	FRotator(0.f, MyOwner->GetActorRotation().Yaw, 0.f);
-	AActor* const MagicBullet = World->SpawnActor(BpMagicBullet, &SpawnPoint, &SpawnRotation);
-	check(MagicBullet);
+	FVector_NetQuantize SpawnPoint;
+	const bool bWasHit = MyOwner->GetMouseLocation(SpawnPoint);
+	if (!bWasHit) return;
+
+	SpawnPoint.Set(SpawnPoint.X, SpawnPoint.Y, IceCrystalZPos);
+	check(BpIceCrystal);
+	AActor* const IceCrystal = World->SpawnActor(BpIceCrystal, &SpawnPoint);
+	DrawDebugSphere(World, SpawnPoint, FreezingRange, 10, FColor::Red, true);
+	check(IceCrystal);
 	
-	MagicBullet->SetOwner(MyOwner);
+	IceCrystal->SetOwner(MyOwner);
 	MyOwner->SetAttackState(EAttackType::AT_None);
 }
 

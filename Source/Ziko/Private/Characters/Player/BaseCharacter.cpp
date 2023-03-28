@@ -17,7 +17,6 @@ ABaseCharacter::ABaseCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
-	
 	CameraSpringComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera Spring"));
 	CameraSpringComp->SetupAttachment(RootComponent);
 	
@@ -26,7 +25,7 @@ ABaseCharacter::ABaseCharacter()
 
 	CameraSpringComp->TargetArmLength = 750.f;
 	CameraSpringComp->SetRelativeRotation(FRotator(-50.f, 0.f, 0.f));
-
+	
 	MaxEnergy = -1.f;
 	EnergyRegenerateRate = -1.f;
 	EnergyVal = -1.f;
@@ -52,16 +51,9 @@ void ABaseCharacter::BeginPlay()
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	// DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + (GetActorForwardVector() * 1000), FColor::Red, true);
-	// UE_LOG(LogTemp, Warning, TEXT("BEFORE FUNCTION CALL: Rotation = %s"), *GetActorRotation().ToCompactString());
-	// UE_LOG(LogTemp, Warning, TEXT("BEFORE FUNCTION CALL: FOrward Vector = %s"), *GetActorForwardVector().ToCompactString());
 	
 	UpdateLookDir();
 	RegenerateEnergy(DeltaTime); //FIXME: Don't regenerate in Tick, use Timer maybe
-
-	// UE_LOG(LogTemp, Warning, TEXT("AFTER FUNCTION CALL: Rotation = %s"), *GetActorRotation().ToCompactString());
-	// UE_LOG(LogTemp, Warning, TEXT("AFTER FUNCTION CALL: FOrward Vector = %s"), *GetActorForwardVector().ToCompactString());
 }
 
 // Called to bind functionality to input
@@ -90,12 +82,13 @@ void ABaseCharacter::MoveRight(float AxisValue)
 
 void ABaseCharacter::UpdateLookDir()
 {
-	if (!PCController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, OutHit)) return;
-	//DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 5.f, 10.f, FColor::Red, true);
+	FVector_NetQuantize MouseLoc;
+	const bool bWasHit = GetMouseLocation(MouseLoc);
+	if (!bWasHit) return;
 
 	const FRotator InitialRotation = GetActorRotation();
 	const FVector Forward =	GetActorForwardVector().GetSafeNormal();
-	FVector CharacterToMouse = OutHit.ImpactPoint - GetActorLocation();
+	FVector CharacterToMouse = MouseLoc - GetActorLocation();
 	CharacterToMouse = CharacterToMouse.GetSafeNormal();
 	
 	//Get angle between player forward and mouse position
@@ -110,8 +103,6 @@ void ABaseCharacter::UpdateLookDir()
 	LookDir = LookDir < 90.f? Angle : - Angle; //FIXME: Weird rotation when mouse transition from left to right or inverse
 	
 	AddActorLocalRotation(FRotator(0.f, LookDir, 0.f));
-	//UE_LOG(LogTemp, Warning, TEXT("Within UpdateLookDir: Rotation = %s"), *GetActorRotation().ToCompactString());
-	OutHit.Reset();
 }
 
 void ABaseCharacter::AddInteractableActorInRange(AActor* Item)
@@ -176,4 +167,15 @@ void ABaseCharacter::Equip(AActor* const Item)
 void ABaseCharacter::RegenerateEnergy(const float DeltaTime)
 {
 	EnergyVal = FMath::Clamp(EnergyVal + (EnergyRegenerateRate * DeltaTime), 0.f, MaxEnergy);
+}
+
+bool ABaseCharacter::GetMouseLocation(FVector_NetQuantize& MousePos)
+{
+	check(PCController);
+	if (!PCController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, OutHit))
+		return false;
+
+	MousePos = OutHit.ImpactPoint;
+	OutHit.Reset();
+	return true;
 }

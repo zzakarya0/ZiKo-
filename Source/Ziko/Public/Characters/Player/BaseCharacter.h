@@ -37,6 +37,9 @@ public:
 
 	void SetAttackState(const EAttackType Type) { AttackType = Type; }
 	EAttackType GetAttackState() const { return AttackType; }
+
+	/*Returns true if getting mouse position was successful*/
+	bool GetMouseLocation(FVector_NetQuantize& MousePos);
 	
 protected:
 	// Called when the game starts or when spawned
