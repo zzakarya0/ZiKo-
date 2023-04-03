@@ -11,6 +11,8 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "DrawDebugHelpers.h"
+
 // Sets default values
 ABaseCharacter::ABaseCharacter()
 {
@@ -92,7 +94,11 @@ void ABaseCharacter::UpdateLookDir()
 {
 	if (!PCController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, OutHit)) return;
 	//DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 5.f, 10.f, FColor::Red, true);
-
+	const FVector player_fwd = GetActorLocation() + GetActorForwardVector();
+	
+	FRotator newRot = ( OutHit.Location- player_fwd ).Rotation();
+	AddActorLocalRotation(FRotator(0.0f,newRot.Yaw,0.0f));
+	/*
 	const FRotator InitialRotation = GetActorRotation();
 	const FVector Forward =	GetActorForwardVector().GetSafeNormal();
 	FVector CharacterToMouse = OutHit.ImpactPoint - GetActorLocation();
@@ -112,6 +118,8 @@ void ABaseCharacter::UpdateLookDir()
 	AddActorLocalRotation(FRotator(0.f, LookDir, 0.f));
 	//UE_LOG(LogTemp, Warning, TEXT("Within UpdateLookDir: Rotation = %s"), *GetActorRotation().ToCompactString());
 	OutHit.Reset();
+	*/
+	
 }
 
 void ABaseCharacter::AddInteractableActorInRange(AActor* Item)

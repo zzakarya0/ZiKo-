@@ -1,13 +1,16 @@
 ﻿#pragma once
-#include "BaseCharacter.h"
+
 #include "CoreMinimal.h"
+#include "BaseCharacter.h"
+#include "GameFramework/Character.h"
+#include "PaladinCharacter.generated.h"
 
 UCLASS()
-class ZIKO_API ABarbarianCharacter : public  ABaseCharacter
+class ZIKO_API APaladinCharacter : public ABaseCharacter
 {
-	GENERATED_BODY();
+	GENERATED_BODY()
 public:
-	ABarbarianCharacter();
+	APaladinCharacter();
 
 protected:
 	virtual void BeginPlay() override;
