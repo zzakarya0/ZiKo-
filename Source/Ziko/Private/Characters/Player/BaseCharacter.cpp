@@ -11,6 +11,8 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "DrawDebugHelpers.h"
+
 // Sets default values
 ABaseCharacter::ABaseCharacter()
 {
@@ -82,27 +84,12 @@ void ABaseCharacter::MoveRight(float AxisValue)
 
 void ABaseCharacter::UpdateLookDir()
 {
-	FVector_NetQuantize MouseLoc;
-	const bool bWasHit = GetMouseLocation(MouseLoc);
-	if (!bWasHit) return;
-
-	const FRotator InitialRotation = GetActorRotation();
-	const FVector Forward =	GetActorForwardVector().GetSafeNormal();
-	FVector CharacterToMouse = MouseLoc - GetActorLocation();
-	CharacterToMouse = CharacterToMouse.GetSafeNormal();
+	if (!PCController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, OutHit)) return;
+	//DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 5.f, 10.f, FColor::Red, true);
+	const FVector player_fwd = GetActorLocation() + GetActorForwardVector();
 	
-	//Get angle between player forward and mouse position
-	const float CosAngle = FVector::DotProduct(Forward, CharacterToMouse) / (Forward.Size() * CharacterToMouse.Size());
-	float Angle = FMath::Acos(CosAngle);
-	Angle = FMath::RadiansToDegrees(FMath::Abs(Angle - InitialRotation.Yaw));
-
-	//Check if mouse position is in right/left of player
-	const float CosDirAngle = FVector::DotProduct(GetActorRightVector(), CharacterToMouse) / (GetActorForwardVector().Size() * CharacterToMouse.Size());
-	float LookDir = FMath::Acos(CosDirAngle);
-	LookDir = FMath::RadiansToDegrees(LookDir);
-	LookDir = LookDir < 90.f? Angle : - Angle; //FIXME: Weird rotation when mouse transition from left to right or inverse
-	
-	AddActorLocalRotation(FRotator(0.f, LookDir, 0.f));
+	FRotator newRot = ( OutHit.Location- player_fwd ).Rotation();
+	AddActorLocalRotation(FRotator(0.0f,newRot.Yaw,0.0f));
 }
 
 void ABaseCharacter::AddInteractableActorInRange(AActor* Item)
